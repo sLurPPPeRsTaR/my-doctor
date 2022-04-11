@@ -2,10 +2,10 @@ import {createUserWithEmailAndPassword, getAuth} from 'firebase/auth';
 import {getDatabase, ref, set} from 'firebase/database';
 import React, {useState} from 'react';
 import {ScrollView, StyleSheet, View} from 'react-native';
+import {showMessage} from 'react-native-flash-message';
 import {Button, Gap, Header, Input, Loading} from '../../components';
 import {Fire} from '../../config/Fire';
 import {colors, useForm} from '../../utils';
-import {showMessage, hideMessage} from 'react-native-flash-message';
 
 const auth = getAuth(Fire);
 const database = getDatabase(Fire);
