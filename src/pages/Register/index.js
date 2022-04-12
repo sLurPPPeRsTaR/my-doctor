@@ -5,7 +5,7 @@ import {ScrollView, StyleSheet, View} from 'react-native';
 import {showMessage} from 'react-native-flash-message';
 import {Button, Gap, Header, Input, Loading} from '../../components';
 import {Fire} from '../../config/Fire';
-import {colors, useForm} from '../../utils';
+import {colors, storeData, useForm} from '../../utils';
 
 const auth = getAuth(Fire);
 const database = getDatabase(Fire);
@@ -24,15 +24,18 @@ const Register = ({navigation}) => {
     setLoading(true);
     createUserWithEmailAndPassword(auth, form.email, form.password)
       .then(userCredential => {
+        const data = {
+          fullName: form.fullName,
+          profession: form.profession,
+          email: form.email,
+        };
         // Signed in
         const user = userCredential.user;
         setLoading(false);
         setForm('reset');
-        set(ref(database, 'users/' + user.uid + '/'), {
-          fullName: form.fullName,
-          profession: form.profession,
-          email: form.email,
-        });
+        set(ref(database, 'users/' + user.uid + '/'), data);
+        storeData('user', data);
+        navigation.navigate('UploadPhoto_Screen');
         console.log('success :', user);
         // ...
       })
@@ -49,8 +52,6 @@ const Register = ({navigation}) => {
         console.log(errorMessage);
         // ..
       });
-
-    // navigation.navigate('UploadPhoto_Screen')
   };
 
   return (
