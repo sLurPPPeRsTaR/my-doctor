@@ -5,26 +5,46 @@ import {IconAddPhoto, IconRemovePhoto, ILNullPhoto} from '../../assets';
 import {Button, Gap, Header, Link} from '../../components';
 import {colors, fonts} from '../../utils';
 import {showMessage} from 'react-native-flash-message';
+import {getDatabase, update, ref} from 'firebase/database';
+import {Fire} from '../../config/Fire';
 
-const UploadPhoto = ({navigation}) => {
+const UploadPhoto = ({navigation, route}) => {
+  const {fullName, profession, uid} = route.params;
+  const database = getDatabase(Fire);
+
   const [hasPhoto, setHasPhoto] = useState(false);
   const [photo, setPhoto] = useState(ILNullPhoto);
+  const [photoForDB, setPhotoForDB] = useState('');
+
   const getImage = () => {
-    launchImageLibrary({}, respone => {
-      if (respone.didCancel) {
-        showMessage({
-          message: 'oops, sepertinya anda tidak memilih foto nya?',
-          type: 'default',
-          backgroundColor: colors.error,
-          color: colors.white,
-        });
-        return;
-      }
-      const source = {uri: respone.assets[0].uri};
-      setPhoto(source);
-      setHasPhoto(true);
-    });
+    launchImageLibrary(
+      {includeBase64: true, quality: 0.5, maxWidth: 200, maxHeight: 200},
+      respone => {
+        if (respone.didCancel) {
+          showMessage({
+            message: 'oops, sepertinya anda tidak memilih foto nya?',
+            type: 'default',
+            backgroundColor: colors.error,
+            color: colors.white,
+          });
+          return;
+        }
+        console.log(respone.assets);
+        setPhotoForDB(
+          `data:${respone.assets[0].type};base64, ${respone.assets[0].base64}`,
+        );
+        const source = {uri: respone.assets[0].uri};
+        setPhoto(source);
+        setHasPhoto(true);
+      },
+    );
   };
+
+  const uploadAndContinue = () => {
+    update(ref(database, 'users/' + uid + '/'), {photo: photoForDB});
+    navigation.replace('MainApp_Screen');
+  };
+
   return (
     <View style={styles.page}>
       <Header title="Upload Photo" />
@@ -35,11 +55,15 @@ const UploadPhoto = ({navigation}) => {
             {hasPhoto && <IconRemovePhoto style={styles.addPhoto} />}
             {!hasPhoto && <IconAddPhoto style={styles.addPhoto} />}
           </TouchableOpacity>
-          <Text style={styles.name}>Shayna Melinda</Text>
-          <Text style={styles.profession}>Product Designer</Text>
+          <Text style={styles.name}>{fullName}</Text>
+          <Text style={styles.profession}>{profession}</Text>
         </View>
         <View>
-          <Button disable={!hasPhoto} title="Upload and Continue" />
+          <Button
+            disable={!hasPhoto}
+            title="Upload and Continue"
+            onPress={uploadAndContinue}
+          />
           <Gap height={30} />
           <Link
             title="Skip for this"

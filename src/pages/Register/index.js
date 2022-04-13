@@ -24,18 +24,19 @@ const Register = ({navigation}) => {
     setLoading(true);
     createUserWithEmailAndPassword(auth, form.email, form.password)
       .then(userCredential => {
+        const user = userCredential.user;
         const data = {
           fullName: form.fullName,
           profession: form.profession,
           email: form.email,
+          uid: user.uid,
         };
         // Signed in
-        const user = userCredential.user;
         setLoading(false);
         setForm('reset');
         set(ref(database, 'users/' + user.uid + '/'), data);
         storeData('user', data);
-        navigation.navigate('UploadPhoto_Screen');
+        navigation.navigate('UploadPhoto_Screen', data);
         console.log('success :', user);
         // ...
       })
