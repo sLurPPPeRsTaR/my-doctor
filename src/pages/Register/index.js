@@ -68,7 +68,7 @@ const Register = ({navigation}) => {
             />
             <Gap height={24} />
             <Input
-              label="profession"
+              label="Profession"
               value={form.profession}
               onChangeText={value => setForm('profession', value)}
             />

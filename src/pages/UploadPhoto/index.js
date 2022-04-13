@@ -1,12 +1,12 @@
+import {getDatabase, ref, update} from 'firebase/database';
 import React, {useState} from 'react';
 import {Image, StyleSheet, Text, TouchableOpacity, View} from 'react-native';
+import {showMessage} from 'react-native-flash-message';
 import {launchImageLibrary} from 'react-native-image-picker';
 import {IconAddPhoto, IconRemovePhoto, ILNullPhoto} from '../../assets';
 import {Button, Gap, Header, Link} from '../../components';
-import {colors, fonts} from '../../utils';
-import {showMessage} from 'react-native-flash-message';
-import {getDatabase, update, ref} from 'firebase/database';
 import {Fire} from '../../config/Fire';
+import {colors, fonts, storeData} from '../../utils';
 
 const UploadPhoto = ({navigation, route}) => {
   const {fullName, profession, uid} = route.params;
@@ -42,6 +42,11 @@ const UploadPhoto = ({navigation, route}) => {
 
   const uploadAndContinue = () => {
     update(ref(database, 'users/' + uid + '/'), {photo: photoForDB});
+    const data = route.params;
+    data.photo = photoForDB;
+
+    storeData('user', data);
+
     navigation.replace('MainApp_Screen');
   };
 
