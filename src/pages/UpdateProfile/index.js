@@ -7,8 +7,10 @@ import {getDatabase, ref, update} from 'firebase/database';
 import {showMessage} from 'react-native-flash-message';
 import {launchImageLibrary} from 'react-native-image-picker';
 import {ILNullPhoto} from '../../assets';
+import {getAuth, onAuthStateChanged, updatePassword} from 'firebase/auth';
 
 const database = getDatabase(Fire);
+const auth = getAuth(Fire);
 
 const UpdateProfile = ({navigation}) => {
   const [profile, setProfile] = useState({
@@ -30,9 +32,53 @@ const UpdateProfile = ({navigation}) => {
 
   const updateHandler = () => {
     console.log('profile:', profile);
+
+    console.log('new password :', password);
+    if (password.length > 0) {
+      if (password.length < 6) {
+        ShowMessage({
+          message: 'Password kurang dari 6 karakter',
+          type: 'default',
+          backgroundColor: colors.error,
+          color: colors.white,
+        });
+      } else {
+        // update password
+        handlerUpdatePassword();
+        updateProfileData();
+        navigation.replace('MainApp_Screen');
+      }
+    } else {
+      updateProfileData();
+      navigation.replace('MainApp_Screen');
+    }
+  };
+
+  const handlerUpdatePassword = () => {
+    onAuthStateChanged(auth, user => {
+      if (user) {
+        // console.log('user:', user);
+
+        // User is signed in, see docs for a list of available properties
+        // https://firebase.google.com/docs/reference/js/firebase.User
+        updatePassword(user, password)
+          .then(() => console.log('success'))
+          .catch(err => {
+            ShowMessage({
+              message: err.message,
+              type: 'default',
+              backgroundColor: colors.error,
+              color: colors.white,
+            });
+          });
+        // ...
+      }
+    });
+  };
+
+  const updateProfileData = () => {
     const data = profile;
     data.photo = photoForDB;
-
     update(ref(database, 'users/' + profile.uid + '/'), data)
       .then(() => {
         console.log('success:', data);
@@ -46,8 +92,6 @@ const UpdateProfile = ({navigation}) => {
           color: colors.white,
         });
       });
-
-    navigation.replace('MainApp_Screen');
   };
 
   const changeText = (key, value) => {
@@ -109,6 +153,7 @@ const UpdateProfile = ({navigation}) => {
           <Input
             label="Password"
             value={password}
+            secureTextEntry
             onChangeText={value => setPassword(value)}
           />
           <Gap height={40} />
