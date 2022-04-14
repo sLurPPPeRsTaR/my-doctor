@@ -2,6 +2,11 @@ import {ScrollView, StyleSheet, View} from 'react-native';
 import React, {useState, useEffect} from 'react';
 import {Button, Gap, Header, Input, Profile} from '../../components';
 import {colors, getData} from '../../utils';
+import {Fire} from '../../config/Fire';
+import {getDatabase, ref, update} from 'firebase/database';
+import {showMessage} from 'react-native-flash-message';
+
+const database = getDatabase(Fire);
 
 const UpdateProfile = ({navigation}) => {
   const [profile, setProfile] = useState({
@@ -19,15 +24,27 @@ const UpdateProfile = ({navigation}) => {
     });
   }, []);
 
-  const update = () => {
+  const updateHandler = () => {
     console.log('profile:', profile);
+    const data = profile;
+    data.photo = profile.photo.uri;
+    update(ref(database, 'users/' + profile.uid + '/'), profile)
+      .then(res => console.log('success:', res))
+      .catch(err => {
+        showMessage({
+          message: err.message,
+          type: 'default',
+          backgroundColor: colors.error,
+          color: colors.white,
+        });
+      });
 
     // navigation.goBack('UserProfile_Screen')
   };
 
   const changeText = (key, value) => {
     setProfile({
-      ...Profile,
+      ...profile,
       [key]: value,
     });
   };
@@ -55,12 +72,12 @@ const UpdateProfile = ({navigation}) => {
             label="Email Address"
             placeholder="ashayna@google.com"
             value={profile.email}
-            editable={false}
+            disable
           />
           <Gap height={24} />
           <Input label="Password" value={password} />
           <Gap height={40} />
-          <Button title="Save Profile" onPress={update} />
+          <Button title="Save Profile" onPress={updateHandler} />
         </View>
       </ScrollView>
     </View>
