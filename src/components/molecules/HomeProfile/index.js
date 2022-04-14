@@ -8,7 +8,7 @@ const HomeProfile = ({onPress}) => {
     getData('user').then(res => {
       const data = res;
       data.photo = {uri: res.photo};
-      setProfile(res);
+      setProfile(data);
     });
   }, []);
 

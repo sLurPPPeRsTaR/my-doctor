@@ -47,7 +47,7 @@ const UpdateProfile = ({navigation}) => {
         });
       });
 
-    // navigation.goBack('UserProfile_Screen')
+    navigation.replace('MainApp_Screen');
   };
 
   const changeText = (key, value) => {
