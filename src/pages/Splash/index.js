@@ -9,8 +9,8 @@ const auth = getAuth(Fire);
 
 const Splash = ({navigation}) => {
   useEffect(() => {
-    setTimeout(() => {
-      onAuthStateChanged(auth, user => {
+    const unsubscribe = onAuthStateChanged(auth, user => {
+      setTimeout(() => {
         if (user) {
           // User is signed in, see docs for a list of available properties
           // https://firebase.google.com/docs/reference/js/firebase.User
@@ -23,9 +23,11 @@ const Splash = ({navigation}) => {
           // User is signed out
           // ...
         }
-      });
-    }, 3000);
-  }, [navigation]);
+      }, 3000);
+    });
+
+    return () => unsubscribe();
+  }, []);
 
   return (
     <View style={styles.page}>
