@@ -27,7 +27,7 @@ const Doctor = ({navigation}) => {
     getData('user').then(res => {
       const data = res;
       data.photo = res?.photo?.length > 1 ? {uri: res.photo} : ILNullPhoto;
-      setProfile(res);
+      setProfile(data);
     });
   };
 

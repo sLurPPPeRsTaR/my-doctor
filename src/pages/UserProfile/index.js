@@ -1,9 +1,8 @@
 import {getAuth, signOut} from 'firebase/auth';
-import React, {useEffect, useState} from 'react';
+import React from 'react';
 import {StyleSheet, View} from 'react-native';
-import {ILNullPhoto} from '../../assets';
 import {Gap, Header, List, Profile} from '../../components';
-import {colors, getData, showError} from '../../utils';
+import {colors, showError} from '../../utils';
 
 const auth = getAuth();
 
@@ -13,7 +12,7 @@ const UserProfile = ({navigation, route}) => {
   const handlerSignOut = () => {
     signOut(auth)
       .then(() => {
-        // Sign-out successful.
+        // Sign-out successful.\O
         navigation.replace('GetStarted_Screen');
       })
       .catch(error => {
