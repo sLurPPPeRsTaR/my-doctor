@@ -1,3 +1,4 @@
+import {getDatabase, onValue, ref} from 'firebase/database';
 import React, {useEffect, useState} from 'react';
 import {ScrollView, StyleSheet, Text, View} from 'react-native';
 import {
@@ -14,10 +15,28 @@ import {
   NewsItem,
   RatedDoctor,
 } from '../../components/';
+import {Fire} from '../../config/Fire';
 import {colors, fonts, getData} from '../../utils';
 
+const database = getDatabase(Fire);
+
 const Doctor = ({navigation}) => {
+  const [news, setNews] = useState([]);
+
   useEffect(() => {
+    onValue(
+      ref(database, 'news/'),
+      res => {
+        if (res.val()) {
+          setNews(res.val());
+        }
+        // ...
+      },
+      {
+        onlyOnce: true,
+      },
+    );
+
     navigation.addListener('focus', () => {
       getUserData();
     });
@@ -89,9 +108,17 @@ const Doctor = ({navigation}) => {
             />
             <Text style={styles.sectionLabel}>Good News</Text>
           </View>
-          <NewsItem />
-          <NewsItem />
-          <NewsItem />
+          {news.map(item => {
+            return (
+              <NewsItem
+                key={item.id}
+                title={item.title}
+                date={item.date}
+                image={item.image}
+              />
+            );
+          })}
+
           <Gap height={30} />
         </ScrollView>
       </View>
