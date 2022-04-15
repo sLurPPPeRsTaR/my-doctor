@@ -7,19 +7,8 @@ import {colors, getData, showError} from '../../utils';
 
 const auth = getAuth();
 
-const UserProfile = ({navigation}) => {
-  const [profile, setProfile] = useState({
-    fullName: '',
-    profession: '',
-    photo: ILNullPhoto,
-  });
-  useEffect(() => {
-    getData('user').then(res => {
-      const data = res;
-      data.photo = {uri: res.photo};
-      setProfile(data);
-    });
-  }, []);
+const UserProfile = ({navigation, route}) => {
+  const profile = route.params;
 
   const handlerSignOut = () => {
     signOut(auth)

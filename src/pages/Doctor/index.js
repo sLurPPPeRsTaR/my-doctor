@@ -1,9 +1,10 @@
-import React from 'react';
+import React, {useEffect, useState} from 'react';
 import {ScrollView, StyleSheet, Text, View} from 'react-native';
 import {
   DummyDoctor1,
   DummyDoctor2,
   DummyDoctor3,
+  ILNullPhoto,
   JSONCategoryDoctor,
 } from '../../assets';
 import {
@@ -13,9 +14,28 @@ import {
   NewsItem,
   RatedDoctor,
 } from '../../components/';
-import {colors, fonts} from '../../utils';
+import {colors, fonts, getData} from '../../utils';
 
 const Doctor = ({navigation}) => {
+  useEffect(() => {
+    navigation.addListener('focus', () => {
+      getUserData();
+    });
+  }, [navigation]);
+
+  const getUserData = () => {
+    getData('user').then(res => {
+      const data = res;
+      data.photo = res?.photo?.length > 1 ? {uri: res.photo} : ILNullPhoto;
+      setProfile(res);
+    });
+  };
+
+  const [profile, setProfile] = useState({
+    photo: ILNullPhoto,
+    fullName: '',
+    profession: '',
+  });
   return (
     <View style={styles.page}>
       <View style={styles.content}>
@@ -23,7 +43,8 @@ const Doctor = ({navigation}) => {
           <View style={styles.wrapperSection}>
             <Gap height={30} />
             <HomeProfile
-              onPress={() => navigation.navigate('UserProfile_Screen')}
+              profile={profile}
+              onPress={() => navigation.navigate('UserProfile_Screen', profile)}
             />
             <Text style={styles.welcome}>
               Mau konsultasi dengan siapa hari ini?

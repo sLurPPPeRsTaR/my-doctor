@@ -37,11 +37,9 @@ const UpdateProfile = ({navigation}) => {
         // update password
         handlerUpdatePassword();
         updateProfileData();
-        navigation.replace('MainApp_Screen');
       }
     } else {
       updateProfileData();
-      navigation.replace('MainApp_Screen');
     }
   };
 
@@ -66,6 +64,9 @@ const UpdateProfile = ({navigation}) => {
     update(ref(database, 'users/' + profile.uid + '/'), data)
       .then(() => {
         storeData('user', data);
+      })
+      .then(() => {
+        navigation.replace('MainApp_Screen');
       })
       .catch(err => {
         showError(err.message);
