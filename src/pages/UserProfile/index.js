@@ -1,10 +1,9 @@
-import React, {useState, useEffect} from 'react';
+import {getAuth, signOut} from 'firebase/auth';
+import React, {useEffect, useState} from 'react';
 import {StyleSheet, View} from 'react-native';
 import {ILNullPhoto} from '../../assets';
 import {Gap, Header, List, Profile} from '../../components';
-import {colors, getData} from '../../utils';
-import {getAuth, signOut} from 'firebase/auth';
-import {showMessage} from 'react-native-flash-message';
+import {colors, getData, showError} from '../../utils';
 
 const auth = getAuth();
 
@@ -26,17 +25,11 @@ const UserProfile = ({navigation}) => {
     signOut(auth)
       .then(() => {
         // Sign-out successful.
-        console.log('Sign-out successful.');
         navigation.replace('GetStarted_Screen');
       })
       .catch(error => {
         // An error happened.
-        showMessage({
-          message: error.message,
-          type: 'default',
-          backgroundColor: colors.error,
-          color: colors.white,
-        });
+        showError(error.message);
       });
   };
 

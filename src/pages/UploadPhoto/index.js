@@ -1,12 +1,11 @@
 import {getDatabase, ref, update} from 'firebase/database';
-import {Fire} from '../../config/Fire';
 import React, {useState} from 'react';
 import {Image, StyleSheet, Text, TouchableOpacity, View} from 'react-native';
-import {showMessage} from 'react-native-flash-message';
 import {launchImageLibrary} from 'react-native-image-picker';
 import {IconAddPhoto, IconRemovePhoto, ILNullPhoto} from '../../assets';
 import {Button, Gap, Header, Link} from '../../components';
-import {colors, fonts, storeData} from '../../utils';
+import {Fire} from '../../config/Fire';
+import {colors, fonts, showError, storeData} from '../../utils';
 
 const UploadPhoto = ({navigation, route}) => {
   const {fullName, profession, uid} = route.params;
@@ -21,15 +20,9 @@ const UploadPhoto = ({navigation, route}) => {
       {includeBase64: true, quality: 0.5, maxWidth: 200, maxHeight: 200},
       respone => {
         if (respone.didCancel) {
-          showMessage({
-            message: 'oops, sepertinya anda tidak memilih foto nya?',
-            type: 'default',
-            backgroundColor: colors.error,
-            color: colors.white,
-          });
+          showError('oops, sepertinya anda tidak memilih foto nya?');
           return;
         }
-        console.log(respone.assets);
         setPhotoForDB(
           `data:${respone.assets[0].type};base64, ${respone.assets[0].base64}`,
         );
@@ -44,9 +37,7 @@ const UploadPhoto = ({navigation, route}) => {
     update(ref(database, 'users/' + uid + '/'), {photo: photoForDB});
     const data = route.params;
     data.photo = photoForDB;
-
     storeData('user', data);
-
     navigation.replace('MainApp_Screen');
   };
 

@@ -1,13 +1,12 @@
-import {ScrollView, StyleSheet, View} from 'react-native';
-import React, {useState, useEffect} from 'react';
-import {Button, Gap, Header, Input, Profile} from '../../components';
-import {colors, getData, storeData} from '../../utils';
-import {Fire} from '../../config/Fire';
+import {getAuth, onAuthStateChanged, updatePassword} from 'firebase/auth';
 import {getDatabase, ref, update} from 'firebase/database';
-import {showMessage} from 'react-native-flash-message';
+import React, {useEffect, useState} from 'react';
+import {ScrollView, StyleSheet, View} from 'react-native';
 import {launchImageLibrary} from 'react-native-image-picker';
 import {ILNullPhoto} from '../../assets';
-import {getAuth, onAuthStateChanged, updatePassword} from 'firebase/auth';
+import {Button, Gap, Header, Input, Profile} from '../../components';
+import {Fire} from '../../config/Fire';
+import {colors, getData, showError, storeData} from '../../utils';
 
 const database = getDatabase(Fire);
 const auth = getAuth(Fire);
@@ -31,17 +30,9 @@ const UpdateProfile = ({navigation}) => {
   }, []);
 
   const updateHandler = () => {
-    console.log('profile:', profile);
-
-    console.log('new password :', password);
     if (password.length > 0) {
       if (password.length < 6) {
-        ShowMessage({
-          message: 'Password kurang dari 6 karakter',
-          type: 'default',
-          backgroundColor: colors.error,
-          color: colors.white,
-        });
+        showError('Password kurang dari 6 karakter.');
       } else {
         // update password
         handlerUpdatePassword();
@@ -61,16 +52,9 @@ const UpdateProfile = ({navigation}) => {
 
         // User is signed in, see docs for a list of available properties
         // https://firebase.google.com/docs/reference/js/firebase.User
-        updatePassword(user, password)
-          .then(() => console.log('success'))
-          .catch(err => {
-            ShowMessage({
-              message: err.message,
-              type: 'default',
-              backgroundColor: colors.error,
-              color: colors.white,
-            });
-          });
+        updatePassword(user, password).catch(err => {
+          showError(err.message);
+        });
         // ...
       }
     });
@@ -81,16 +65,10 @@ const UpdateProfile = ({navigation}) => {
     data.photo = photoForDB;
     update(ref(database, 'users/' + profile.uid + '/'), data)
       .then(() => {
-        console.log('success:', data);
         storeData('user', data);
       })
       .catch(err => {
-        showMessage({
-          message: err.message,
-          type: 'default',
-          backgroundColor: colors.error,
-          color: colors.white,
-        });
+        showError(err.message);
       });
   };
 
@@ -106,15 +84,9 @@ const UpdateProfile = ({navigation}) => {
       {includeBase64: true, quality: 0.5, maxWidth: 200, maxHeight: 200},
       respone => {
         if (respone.didCancel) {
-          showMessage({
-            message: 'oops, sepertinya anda tidak memilih foto nya?',
-            type: 'default',
-            backgroundColor: colors.error,
-            color: colors.white,
-          });
+          showError('oops, sepertinya anda tidak memilih foto nya?');
           return;
         }
-        console.log(respone.assets);
         setPhotoForDB(
           `data:${respone.assets[0].type};base64, ${respone.assets[0].base64}`,
         );
