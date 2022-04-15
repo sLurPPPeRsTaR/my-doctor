@@ -22,8 +22,17 @@ const database = getDatabase(Fire);
 
 const Doctor = ({navigation}) => {
   const [news, setNews] = useState([]);
+  const [categoryDoctor, setCategoryDoctor] = useState([]);
 
   useEffect(() => {
+    getNews();
+    getCategoryDoctor();
+    navigation.addListener('focus', () => {
+      getUserData();
+    });
+  }, [navigation]);
+
+  const getNews = () => {
     onValue(
       ref(database, 'news/'),
       res => {
@@ -36,11 +45,22 @@ const Doctor = ({navigation}) => {
         onlyOnce: true,
       },
     );
+  };
 
-    navigation.addListener('focus', () => {
-      getUserData();
-    });
-  }, [navigation]);
+  const getCategoryDoctor = () => {
+    onValue(
+      ref(database, 'category_doc/'),
+      res => {
+        if (res.val()) {
+          setCategoryDoctor(res.val());
+        }
+        // ...
+      },
+      {
+        onlyOnce: true,
+      },
+    );
+  };
 
   const getUserData = () => {
     getData('user').then(res => {
@@ -73,7 +93,7 @@ const Doctor = ({navigation}) => {
             <ScrollView horizontal showsHorizontalScrollIndicator={false}>
               <View style={styles.category}>
                 <Gap width={32} />
-                {JSONCategoryDoctor.data.map(item => {
+                {categoryDoctor.map(item => {
                   return (
                     <DoctorCategory
                       key={item.id}
