@@ -6,7 +6,6 @@ import {
   DummyDoctor2,
   DummyDoctor3,
   ILNullPhoto,
-  JSONCategoryDoctor,
 } from '../../assets';
 import {
   DoctorCategory,
