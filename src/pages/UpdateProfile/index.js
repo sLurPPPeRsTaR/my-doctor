@@ -24,7 +24,9 @@ const UpdateProfile = ({navigation}) => {
   useEffect(() => {
     getData('user').then(res => {
       const data = res;
-      setPhoto({uri: res.photo});
+      data.photoForDB = res?.photo?.length > 1 ? res.photo : ILNullPhoto;
+      const tempPhoto = res?.photo?.length > 1 ? {uri: res.photo} : ILNullPhoto;
+      setPhoto(tempPhoto);
       setProfile(data);
     });
   }, []);
