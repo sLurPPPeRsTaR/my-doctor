@@ -5,11 +5,13 @@ import FlashMessage from 'react-native-flash-message';
 import {Provider, useSelector} from 'react-redux';
 import store from './redux/store';
 import {Loading} from './components';
+import {LogBox} from 'react-native';
 
 const MainApp = () => {
   const globalState = useSelector(state => {
     return state;
   });
+  LogBox.ignoreAllLogs(true);
   return (
     <>
       <NavigationContainer>

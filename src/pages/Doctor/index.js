@@ -65,7 +65,9 @@ const Doctor = ({navigation}) => {
       ref(database, 'news/'),
       res => {
         if (res.val()) {
-          setNews(res.val());
+          const data = res.val();
+          const filterData = data.filter(el => el !== null);
+          setNews(filterData);
         }
         // ...
       },
@@ -80,7 +82,9 @@ const Doctor = ({navigation}) => {
       ref(database, 'category_doc/'),
       res => {
         if (res.val()) {
-          setCategoryDoctor(res.val());
+          const data = res.val();
+          const filterData = data.filter(el => el !== null);
+          setCategoryDoctor(filterData);
         }
         // ...
       },
