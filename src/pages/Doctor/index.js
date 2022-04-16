@@ -1,12 +1,14 @@
-import {getDatabase, onValue, ref} from 'firebase/database';
+import {
+  getDatabase,
+  limitToLast,
+  onValue,
+  orderByChild,
+  query,
+  ref,
+} from 'firebase/database';
 import React, {useEffect, useState} from 'react';
 import {ScrollView, StyleSheet, Text, View} from 'react-native';
-import {
-  DummyDoctor1,
-  DummyDoctor2,
-  DummyDoctor3,
-  ILNullPhoto,
-} from '../../assets';
+import {ILNullPhoto} from '../../assets';
 import {
   DoctorCategory,
   Gap,
@@ -22,14 +24,41 @@ const database = getDatabase(Fire);
 const Doctor = ({navigation}) => {
   const [news, setNews] = useState([]);
   const [categoryDoctor, setCategoryDoctor] = useState([]);
+  const [doctors, setDoctors] = useState([]);
 
   useEffect(() => {
-    getNews();
     getCategoryDoctor();
+    getTopRateDoctors();
+    getNews();
     navigation.addListener('focus', () => {
       getUserData();
     });
-  }, [navigation]);
+  }, []);
+
+  const getTopRateDoctors = () => {
+    onValue(
+      query(ref(database, 'doctors/'), orderByChild('rate'), limitToLast(3)),
+      res => {
+        if (res.val()) {
+          if (res.val()) {
+            const oldData = res.val();
+            const data = [];
+            Object.keys(oldData).map(item => {
+              data.push({
+                id: item,
+                data: oldData[item],
+              });
+            });
+            setDoctors(data);
+          }
+        }
+        // ...
+      },
+      {
+        onlyOnce: true,
+      },
+    );
+  };
 
   const getNews = () => {
     onValue(
@@ -97,7 +126,9 @@ const Doctor = ({navigation}) => {
                     <DoctorCategory
                       key={item.id}
                       category={item.category}
-                      onPress={() => navigation.navigate('ChooseDoctor_Screen')}
+                      onPress={() =>
+                        navigation.navigate('ChooseDoctor_Screen', item)
+                      }
                     />
                   );
                 })}
@@ -107,24 +138,19 @@ const Doctor = ({navigation}) => {
           </View>
           <View style={styles.wrapperSection}>
             <Text style={styles.sectionLabel}>Top Rated Doctors</Text>
-            <RatedDoctor
-              name="Alexa Rachel"
-              desc="Pediatrician"
-              onPress={() => navigation.navigate('DoctorProfile_Screen')}
-              avatar={DummyDoctor1}
-            />
-            <RatedDoctor
-              name="Sunny Frank"
-              desc="Dentist"
-              onPress={() => navigation.navigate('DoctorProfile_Screen')}
-              avatar={DummyDoctor2}
-            />
-            <RatedDoctor
-              name="Poe Minn"
-              desc="Podiatrist"
-              onPress={() => navigation.navigate('DoctorProfile_Screen')}
-              avatar={DummyDoctor3}
-            />
+            {doctors.map(doctors => {
+              return (
+                <RatedDoctor
+                  key={doctors.id}
+                  name={doctors.data.fullName}
+                  desc={doctors.data.profession}
+                  avatar={{uri: doctors.data.photo}}
+                  onPress={() =>
+                    navigation.navigate('DoctorProfile_Screen', doctors)
+                  }
+                />
+              );
+            })}
             <Text style={styles.sectionLabel}>Good News</Text>
           </View>
           {news.map(item => {
