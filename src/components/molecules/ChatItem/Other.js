@@ -25,7 +25,7 @@ const styles = StyleSheet.create({
     paddingLeft: 16,
     flexDirection: 'row',
   },
-  avatar: {width: 30, height: 30, marginRight: 12},
+  avatar: {width: 30, height: 30, marginRight: 12, borderRadius: 30 / 2},
   chatContent: {
     padding: 12,
     maxWidth: '80%',
