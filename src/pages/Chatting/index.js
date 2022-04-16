@@ -1,10 +1,90 @@
-import {StyleSheet, Text, View, ScrollView} from 'react-native';
-import React from 'react';
+import {getDatabase, push, ref, onValue} from 'firebase/database';
+import React, {useEffect, useState} from 'react';
+import {ScrollView, StyleSheet, Text, View} from 'react-native';
 import {ChatItem, Header, InputChat} from '../../components';
-import {colors, fonts} from '../../utils';
+import {Fire} from '../../config/Fire';
+import {
+  colors,
+  fonts,
+  getChatTime,
+  getData,
+  setDateChat,
+  showError,
+} from '../../utils';
+
+const database = getDatabase(Fire);
 
 const Chatting = ({navigation, route}) => {
   const dataDoctor = route.params;
+  const [chatContent, setChatContent] = useState('');
+  const [user, setUser] = useState({});
+  const [chatData, setChatData] = useState([]);
+
+  const chatSend = () => {
+    const today = new Date();
+
+    const data = {
+      sendBy: user.uid,
+      chatDate: today.getTime(),
+      chatTime: getChatTime(today),
+      chatContent: chatContent,
+    };
+
+    const urlChatID = `${user.uid}_${dataDoctor.data.uid}`;
+    const urlFirebase = `chatting/${urlChatID}/allChat/${setDateChat(today)}`;
+
+    push(ref(database, urlFirebase), data)
+      .then(() => {
+        setChatContent('');
+      })
+      .catch(err => {
+        showError(err.message);
+      });
+  };
+
+  useEffect(() => {
+    getDataUserFromLocal();
+    getDataChatting();
+  }, [user.uid, dataDoctor.data.uid]);
+
+  const getDataUserFromLocal = () => {
+    getData('user').then(res => {
+      setUser(res);
+    });
+  };
+
+  const getDataChatting = () => {
+    // const urlChatID = `${user.uid}_${dataDoctor.data.uid}`;
+    // const urlFirebase = `chatting/${urlChatID}/allChat/}`;
+
+    onValue(
+      ref(database, `chatting/${user.uid}_${dataDoctor.data.uid}/allChat/`),
+      snapshot => {
+        if (snapshot.val()) {
+          const dataSnapshot = snapshot.val();
+          const allDataChat = [];
+          Object.keys(dataSnapshot)?.map(key => {
+            const dataChat = dataSnapshot[key];
+            const newDataChat = [];
+
+            Object.keys(dataChat)?.map(itemChat => {
+              newDataChat.push({
+                id: itemChat,
+                data: dataChat[itemChat],
+              });
+            });
+
+            allDataChat.push({
+              id: key,
+              data: newDataChat,
+            });
+          });
+          setChatData(allDataChat);
+        }
+        // ...
+      },
+    );
+  };
 
   return (
     <View style={styles.page}>
@@ -17,16 +97,30 @@ const Chatting = ({navigation, route}) => {
       />
       <View style={styles.content}>
         <ScrollView showsVerticalScrollIndicator={false}>
-          <Text style={styles.chatDate}>Senin, 21 Maret, 2020</Text>
-          <ChatItem isMe />
-          <ChatItem />
-          <ChatItem isMe />
+          {chatData.map(chat => {
+            return (
+              <View key={chat.id}>
+                <Text style={styles.chatDate}>{chat.id}</Text>
+                {chat.data.map(itemChat => {
+                  return (
+                    <ChatItem
+                      key={itemChat.id}
+                      isMe={itemChat.data.sendBy === user.uid}
+                      text={itemChat.data.chatContent}
+                      date={itemChat.data.chatTime}
+                    />
+                  );
+                })}
+              </View>
+            );
+          })}
         </ScrollView>
       </View>
       <InputChat
-        value=""
-        onChangeText={() => alert('onChangeText!')}
-        onPress={() => alert('onPress!')}
+        placeholder={`Tulis Pesan Untuk ${dataDoctor.data.fullName}`}
+        value={chatContent}
+        onChangeText={value => setChatContent(value)}
+        onPress={chatSend}
       />
     </View>
   );
