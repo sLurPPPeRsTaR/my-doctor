@@ -43,10 +43,7 @@ const Messages = ({navigation}) => {
         Object.keys(dataSnapshot).map(key => {
           data.push({
             id: key,
-            ...dataSnapshot[
-              key
-            ] /* THIS ONE IS MORE READABLE AND EZ TO INVOKE BY : StackOverflow*/,
-            // data: dataSnapshot[key],
+            ...dataSnapshot[key],
           });
         });
         setHistoryChat(data);
