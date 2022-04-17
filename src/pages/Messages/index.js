@@ -1,3 +1,4 @@
+import {async} from '@firebase/util';
 import {getDatabase, onValue, ref} from 'firebase/database';
 import React, {useEffect, useState} from 'react';
 import {StyleSheet, Text, View} from 'react-native';
@@ -14,16 +15,26 @@ const Messages = ({navigation}) => {
   useEffect(() => {
     getDataUserFromLocal();
     const urlHistory = `messages/${user.uid}/`;
-    onValue(ref(database, urlHistory), snapshot => {
+    onValue(ref(database, urlHistory), async snapshot => {
       if (snapshot.val()) {
         const dataSnapshot = snapshot.val();
         const data = [];
-        Object.keys(dataSnapshot).map(key => {
+
+        const promises = await Object.keys(dataSnapshot).map(async key => {
+          const urlUidDoctor = `doctors/${dataSnapshot[key].uidPartner}`;
+          let detailDoctor = {};
+          await onValue(ref(database, urlUidDoctor), snapshot => {
+            detailDoctor = snapshot.val();
+          });
+
           data.push({
             id: key,
+            detailDoctor: detailDoctor,
             ...dataSnapshot[key],
           });
         });
+        await Promise.all(promises);
+        console.log('nu data', data);
         setHistoryChat(data);
       }
     });
@@ -43,8 +54,8 @@ const Messages = ({navigation}) => {
           return (
             <List
               key={chat.id}
-              profile={chat.uidPartner}
-              name={chat.uidPartner}
+              profile={{uri: chat.detailDoctor.photo}}
+              name={chat.detailDoctor.fullName}
               desc={chat.lastContentChat}
               onPress={() => navigation.navigate('Chatting_Screen')}
             />
