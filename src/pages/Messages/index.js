@@ -13,29 +13,31 @@ const Messages = ({navigation}) => {
   const [historyChat, setHistoryChat] = useState([]);
 
   useEffect(() => {
-    getDataUserFromLocal();
-    const urlHistory = `messages/${user.uid}/`;
-    onValue(ref(database, urlHistory), async snapshot => {
-      if (snapshot.val()) {
-        const dataSnapshot = snapshot.val();
-        const data = [];
+    navigation.addListener('focus', () => {
+      getDataUserFromLocal();
+      const urlHistory = `messages/${user.uid}/`;
+      onValue(ref(database, urlHistory), async snapshot => {
+        if (snapshot.val()) {
+          const dataSnapshot = snapshot.val();
+          const data = [];
 
-        const promises = await Object.keys(dataSnapshot).map(async key => {
-          const urlUidDoctor = `doctors/${dataSnapshot[key].uidPartner}`;
-          let detailDoctor = {};
-          await onValue(ref(database, urlUidDoctor), snapshot => {
-            detailDoctor = snapshot.val();
-          });
+          const promises = await Object.keys(dataSnapshot).map(async key => {
+            const urlUidDoctor = `doctors/${dataSnapshot[key].uidPartner}`;
+            let detailDoctor = {};
+            await onValue(ref(database, urlUidDoctor), async snapshot => {
+              detailDoctor = await snapshot.val();
+            });
 
-          data.push({
-            id: key,
-            detailDoctor: detailDoctor,
-            ...dataSnapshot[key],
+            data.push({
+              id: key,
+              detailDoctor: detailDoctor,
+              ...dataSnapshot[key],
+            });
           });
-        });
-        await Promise.all(promises);
-        setHistoryChat(data);
-      }
+          await Promise.all(promises);
+          setHistoryChat(data);
+        }
+      });
     });
   }, [user.uid]);
 
