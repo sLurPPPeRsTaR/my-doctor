@@ -1,35 +1,13 @@
-import {StyleSheet, Text, View} from 'react-native';
-import React, {useEffect, useState} from 'react';
-import {List} from '../../components';
-import {colors, fonts, getData} from '../../utils';
-import {DummyDoctor1, DummyDoctor2, DummyDoctor3} from '../../assets';
 import {getDatabase, onValue, ref} from 'firebase/database';
+import React, {useEffect, useState} from 'react';
+import {StyleSheet, Text, View} from 'react-native';
+import {List} from '../../components';
 import {Fire} from '../../config/Fire';
+import {colors, fonts, getData} from '../../utils';
 
 const database = getDatabase(Fire);
 
 const Messages = ({navigation}) => {
-  const [doctors] = useState([
-    {
-      id: 1,
-      profile: DummyDoctor1,
-      name: 'Alexander Jannie',
-      desc: 'Baik ibum terima kasih banyak atas wakt...',
-    },
-    {
-      id: 2,
-      profile: DummyDoctor2,
-      name: 'Nairobi Putri Hayza',
-      desc: 'Baik ibum terima kasih banyak atas wakt...',
-    },
-    {
-      id: 3,
-      profile: DummyDoctor3,
-      name: 'John McParker Steve',
-      desc: 'Baik ibum terima kasih banyak atas wakt...',
-    },
-  ]);
-
   const [user, setUser] = useState({});
   const [historyChat, setHistoryChat] = useState([]);
 
