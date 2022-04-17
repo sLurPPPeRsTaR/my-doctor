@@ -110,7 +110,12 @@ const Chatting = ({navigation, route}) => {
         onPress={() => navigation.goBack()}
       />
       <View style={styles.content}>
-        <ScrollView showsVerticalScrollIndicator={false}>
+        <ScrollView
+          showsVerticalScrollIndicator={false}
+          ref={scroll => {
+            this.scroll = scroll;
+          }}
+          onContentSizeChange={() => this.scroll.scrollToEnd()}>
           {chatData.map(chat => {
             return (
               <View key={chat.id}>
